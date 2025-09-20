@@ -1,0 +1,69 @@
+{% extends "_base.html" %}
+{% block content %}
+<h1 class="mb-3">Statistics</h1>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="card border-primary shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title text-primary mb-2">ยอดบริจาค (สำเร็จ)</h5>
+        <div class="display-6 fw-bold text-numeric">฿{{ total_amt|money }}</div>
+        <div class="small text-secondary">รวมเฉพาะรายการที่สำเร็จ</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-success shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title text-success mb-2">Successful pledges</h5>
+        <div class="display-6 fw-bold">{{ succ }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-danger shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title text-danger mb-2">Rejected pledges</h5>
+        <div class="display-6 fw-bold">{{ rej }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 class="h5 mb-3">รายการของฉัน</h2>
+{% if my_items|length == 0 %}
+  <div class="alert alert-info">ยังไม่มีรายการสนับสนุน</div>
+{% else %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th scope="col">เวลา</th>
+          <th scope="col">โครงการ</th>
+          <th scope="col" class="text-end">จำนวนเงิน</th>
+          <th scope="col">สถานะ</th>
+          <th scope="col">เหตุผล (ถ้าถูกปฏิเสธ)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in my_items %}
+        {% set pl = it.pledge %}
+        <tr>
+          <td class="text-nowrap">{{ pl.created_at|fmtdt }}</td>
+          <td><a href="/projects/{{ pl.project_id }}">{{ it.project_name }}</a></td>
+          <td class="text-end text-numeric">฿{{ pl.amount|money }}</td>
+          <td>
+            {% if pl.status == 'success' %}
+              <span class="badge text-bg-success">success</span>
+            {% else %}
+              <span class="badge text-bg-danger">rejected</span>
+            {% endif %}
+          </td>
+          <td class="text-secondary small">{{ pl.reject_reason or '' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "_base.html" %}
+{% block content %}
+<h1 class="mb-3">All Projects</h1>
+
+<form class="row g-2 align-items-end mb-4">
+  <div class="col-md-5">
+    <label class="form-label">ค้นหา</label>
+    <input class="form-control" name="q" placeholder="เช่น AI, Green..." value="{{ q }}">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">หมวดหมู่</label>
+    <select class="form-select" name="category">
+      <option value="all">All</option>
+      {% for c in categories %}
+        <option value="{{ c }}" {% if category==c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">เรียงลำดับ</label>
+    <select class="form-select" name="sort">
+      <option value="new" {% if sort=="new" %}selected{% endif %}>Newest</option>
+      <option value="closing" {% if sort=="closing" %}selected{% endif %}>Closing soon</option>
+      <option value="funded" {% if sort=="funded" %}selected{% endif %}>Most funded</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-primary w-100">Apply</button>
+  </div>
+</form>
+
+<div class="row g-4">
+  {% for it in items %}
+  {% set p = it.p %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="card-title mb-0 text-truncate" title="{{ p.name }}">{{ p.name }}</h5>
+          <span class="badge text-bg-secondary">{{ p.category }}</span>
+        </div>
+
+        <ul class="list-unstyled small text-secondary mb-3">
+          <li title="{{ p.goal_amount|money }}"><b>Goal:</b> ฿{{ p.goal_amount|abbr }}</li>
+          <li title="{{ p.raised_amount|money }}"><b>Raised:</b> ฿{{ p.raised_amount|abbr }}</li>
+          <li><b>Deadline:</b> {{ p.deadline|fmtdate }}</li>
+        </ul>
+
+        <div class="mb-2 d-flex justify-content-between align-items-center">
+          <span class="small text-secondary">Progress</span>
+          <span class="small fw-semibold">{{ it.percent }}%</span>
+        </div>
+        <div class="progress mb-2" role="progressbar" aria-valuenow="{{ it.percent }}" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar {% if it.percent>=100 %}bg-success{% endif %}" style="width: {{ it.percent }}%"></div>
+        </div>
+
+        <div class="d-flex gap-2 mb-3">
+          {% if it.fully_funded %}
+            <span class="badge text-bg-success">Fully funded</span>
+          {% endif %}
+          {% if it.days_left < 0 %}
+            <span class="badge text-bg-secondary">Closed</span>
+          {% elif it.closing_soon %}
+            <span class="badge text-bg-warning text-dark">Closing soon ({{ it.days_left }}d)</span>
+          {% else %}
+            <span class="badge text-bg-info">Left: {{ it.days_left }}d</span>
+          {% endif %}
+        </div>
+
+        <a class="btn btn-outline-primary mt-auto" href="/projects/{{ p.project_id }}">
+          View details
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

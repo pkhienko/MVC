@@ -1,0 +1,90 @@
+{% extends "_base.html" %}
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="me-3 mb-0">{{ p.name }}</h1>
+  <span class="badge text-bg-secondary">{{ p.category }}</span>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="row text-center mb-3 text-numeric">
+          <div class="col">
+            <div class="text-secondary small">Goal</div>
+            <div class="fs-5 fw-semibold">฿{{ p.goal_amount|money }}</div>
+          </div>
+          <div class="col">
+            <div class="text-secondary small">Raised</div>
+            <div class="fs-5 fw-semibold">฿{{ p.raised_amount|money }}</div>
+          </div>
+          <div class="col">
+            <div class="text-secondary small">Deadline</div>
+            <div class="fs-5 fw-semibold">{{ p.deadline|fmtdate }}</div>
+          </div>
+        </div>
+
+        <div class="mb-2 d-flex justify-content-between">
+          <span class="small text-secondary">Progress</span>
+          <span class="small fw-semibold">{{ percent }}%</span>
+        </div>
+        <div class="progress" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar {% if percent>=100 %}bg-success{% endif %}" style="width: {{ percent }}%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">Reward Tiers</div>
+      <ul class="list-group list-group-flush">
+        {% for t in tiers %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-semibold">{{ t.name }}</div>
+              <div class="small text-secondary">Min: ฿{{ t.min_amount|money }}</div>
+            </div>
+            <span class="badge rounded-pill {% if t.quota>0 %}text-bg-primary{% else %}text-bg-secondary{% endif %}">
+              Quota: {{ t.quota }}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">Make a Pledge</div>
+      <div class="card-body">
+        {% if user_id %}
+          <form method="post" action="/pledge" class="row g-3">
+            <input type="hidden" name="project_id" value="{{ p.project_id }}">
+            <div class="col-12">
+              <label class="form-label">Amount</label>
+              <input type="number" class="form-control" name="amount" min="1" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Tier (optional)</label>
+              <select name="tier_id" class="form-select">
+                <option value="">(no reward)</option>
+                {% for t in tiers %}
+                  <option value="{{ t.tier_id }}">{{ t.name }} (min ฿{{ t.min_amount|money }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-primary w-100">
+                <i class="bi bi-heart-fill me-1"></i>Pledge
+              </button>
+            </div>
+          </form>
+        {% else %}
+          <div class="alert alert-info mb-0">
+            กรุณา <a href="/login" class="alert-link">Login</a> ก่อนสนับสนุน
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
